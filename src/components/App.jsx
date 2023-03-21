@@ -1,6 +1,7 @@
 import { Searchbar } from './Searchbar/Searchbar';
 import { Component } from 'react';
 import { ImageGallery } from './ImageGallery/ImageGallery';
+import css from './App.module.css';
 
 export class App extends Component {
   state = {
@@ -16,10 +17,10 @@ export class App extends Component {
 
   render() {
     return (
-      <>
+      <> <div className={css.app}>
         <Searchbar onSubmit={this.onSubmit} />
         <ImageGallery value={ this.state.value} />
-      </>
+      </div></>
     );
   }
 }

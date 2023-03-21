@@ -2,6 +2,7 @@ import { Searchbar } from './Searchbar/Searchbar';
 import { Component } from 'react';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { GetImage } from './services/GetImage';
+import { Button } from './Button/Button';
 import css from './App.module.css';
 
 export class App extends Component {
@@ -34,6 +35,7 @@ export class App extends Component {
           <div className={css.app}>
           <Searchbar onSubmit={this.onSubmit} />
           <ImageGallery images={this.state.images} />
+          <Button/>
         </div>
       </>
     );

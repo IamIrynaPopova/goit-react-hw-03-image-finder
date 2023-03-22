@@ -13,18 +13,19 @@ export class App extends Component {
     images: [],
     error: null,
     isLoader: false,
+    page: 1,
   };
 
   componentDidUpdate(_, prevState) {
-    const { value } = this.state;
-    if (prevState.value !== value) {
+    const { value, page } = this.state;
+    if (prevState.value !== value || prevState.page !== page) {
       this.setState({ isLoader: true });
-      GetImage(value)
+      GetImage(value, this.state.page)
         .then(response => {
           if (response.ok) {
             return response.json();
           }
-          return Promise.reject(new Error('Invalid'));
+          return Promise.reject(new Error('Not found'));
         })
         .then(images => {
           if (images.hits.length > 0) {
@@ -47,7 +48,17 @@ export class App extends Component {
     form.reset();
   };
 
-  onLoadMore = () => {};
+  onLoadMore = () => {
+    const { value, page } = this.state;
+    this.setState(
+      prevState => ({
+        page: prevState.page + 1,
+      }),
+      () => {
+        GetImage(value, page);
+      }
+    );
+  };
 
   render() {
     const { images, error } = this.state;

@@ -2,11 +2,12 @@ import Notiflix from 'Notiflix';
 import { Searchbar } from './Searchbar/Searchbar';
 import { Component } from 'react';
 import { ImageGallery } from './ImageGallery/ImageGallery';
-import { GetImage } from './services/GetImage';
+import { GetImage } from '../../src/services/GetImage';
 import { Button } from './Button/Button';
 import { Loader } from './Loader/Loader';
 import { Modal } from './Modal/Modal';
 import css from './App.module.css';
+
 
 export class App extends Component {
   state = {
@@ -22,8 +23,8 @@ export class App extends Component {
   componentDidUpdate(_, prevState) {
     const { value, page } = this.state;
     if (prevState.value !== value || prevState.page !== page) {
-      this.setState({ isLoader: true });
-      GetImage(value, this.state.page)
+     this.setState(({ isLoader }) => ({ isLoader: !isLoader }));
+      GetImage(value, page)
         .then(response => {
           if (response.ok) {
             return response.json();
@@ -38,15 +39,21 @@ export class App extends Component {
                   ? images.hits
                   : [...prevImages.images, ...images.hits],
             }));
-          } else {
+          }
+          else {
             Notiflix.Notify.failure(
               'Sorry, there are no images matching your search query. Please try again.'
             );
           }
         })
         .catch(error => this.setState({ error: error }))
-        .finally(this.setState({ isLoader: false }));
+        .finally(() =>this.setState(({ isLoader }) => ({ isLoader: !isLoader })));
     }
+    if (prevState.page !== page && page !== 1) {
+        this.setState(({ isLoader }) => ({ isLoader: !isLoader }));
+     }
+   
+   
   }
 
   onSubmit = e => {
@@ -57,15 +64,10 @@ export class App extends Component {
   };
 
   onLoadMore = () => {
-    const { value, page } = this.state;
-    this.setState(
-      prevState => ({
-        page: prevState.page + 1,
-      }),
-      () => {
-        GetImage(value, page);
-      }
-    );
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+      isLoader: true,
+    }));
   };
 
   openModal = largeImageURL => {
@@ -79,20 +81,22 @@ export class App extends Component {
   };
 
   render() {
-    const { images, error } = this.state;
+    const { images, error, isLoader, showModal, largeImageURL } = this.state;
     return (
       <>
         <div className={css.app}>
           {error && <h1>{error.message}</h1>}
           <Searchbar onSubmit={this.onSubmit} />
-          <ImageGallery images={images} openModal={this.openModal} />
-          {this.state.isLoader && <Loader />}
+          {images.length > 0 && (
+            <ImageGallery images={images} openModal={this.openModal} />
+          )}
+          {isLoader && <Loader />}
           {images.length > 0 && <Button onLoadMore={this.onLoadMore} />}
-          {this.state.showModal && (
+          {showModal && (
             <Modal
               closeESCModal={this.closeESCModal}
               closeModal={this.closeModal}
-              largeImageURL={this.state.largeImageURL}
+              largeImageURL={largeImageURL}
             />
           )}
         </div>

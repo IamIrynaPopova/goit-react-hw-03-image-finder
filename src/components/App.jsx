@@ -8,7 +8,6 @@ import { Loader } from './Loader/Loader';
 import { Modal } from './Modal/Modal';
 import css from './App.module.css';
 
-
 export class App extends Component {
   state = {
     value: '',
@@ -23,7 +22,7 @@ export class App extends Component {
   componentDidUpdate(_, prevState) {
     const { value, page } = this.state;
     if (prevState.value !== value || prevState.page !== page) {
-     this.setState(({ isLoader }) => ({ isLoader: !isLoader }));
+      this.setState(({ isLoader }) => ({ isLoader: !isLoader }));
       GetImage(value, page)
         .then(response => {
           if (response.ok) {
@@ -39,27 +38,26 @@ export class App extends Component {
                   ? images.hits
                   : [...prevImages.images, ...images.hits],
             }));
-          }
-          else {
+          } else {
             Notiflix.Notify.failure(
               'Sorry, there are no images matching your search query. Please try again.'
             );
           }
         })
         .catch(error => this.setState({ error: error }))
-        .finally(() =>this.setState(({ isLoader }) => ({ isLoader: !isLoader })));
+        .finally(() =>
+          this.setState(({ isLoader }) => ({ isLoader: !isLoader }))
+        );
     }
     if (prevState.page !== page && page !== 1) {
-        this.setState(({ isLoader }) => ({ isLoader: !isLoader }));
-     }
-   
-   
+      this.setState(({ isLoader }) => ({ isLoader: !isLoader }));
+    }
   }
 
   onSubmit = e => {
     e.preventDefault();
     const form = e.currentTarget;
-    this.setState({ value: form.elements.input.value, page: 1 });
+    this.setState({ value: form.elements.input.value, page: 1,images: [] });
     form.reset();
   };
 
@@ -91,7 +89,9 @@ export class App extends Component {
             <ImageGallery images={images} openModal={this.openModal} />
           )}
           {isLoader && <Loader />}
-          {images.length > 0 && <Button onLoadMore={this.onLoadMore} />}
+          {!isLoader && images.length > 0 && (
+            <Button onLoadMore={this.onLoadMore} />
+          )}
           {showModal && (
             <Modal
               closeESCModal={this.closeESCModal}
